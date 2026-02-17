@@ -33,6 +33,11 @@ export const CATEGORIES: CategoryInfo[] = [
   { name: 'Other', color: '#6b7280' },
 ];
 
+// O(1) lookup map for category information - improves performance
+export const CATEGORY_MAP = new Map<Category, CategoryInfo>(
+  CATEGORIES.map(c => [c.name, c])
+);
+
 export interface MonthlySummary {
   month: string;
   year: number;

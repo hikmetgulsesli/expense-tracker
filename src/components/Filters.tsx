@@ -64,7 +64,7 @@ export function Filters({ onFilterChange }: FiltersProps) {
               handleChange({ search: e.target.value });
             }}
             placeholder="Search transactions..."
-            className="w-full bg-background border border-border rounded-lg py-2 pl-10 pr-4 text-white placeholder-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+            className="w-full bg-background border border-border rounded-lg py-2 pl-10 pr-4 text-white placeholder-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
           />
         </div>
 
@@ -72,7 +72,7 @@ export function Filters({ onFilterChange }: FiltersProps) {
         <button
           onClick={() => setIsExpanded(!isExpanded)}
           aria-expanded={isExpanded}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
             isExpanded || hasActiveFilters
               ? 'bg-primary/20 text-primary border border-primary/50'
               : 'bg-surface-hover text-muted border border-transparent hover:border-border'
@@ -101,7 +101,7 @@ export function Filters({ onFilterChange }: FiltersProps) {
                 setType(value);
                 handleChange({ type: value });
               }}
-              className="w-full bg-background border border-border rounded-lg py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all cursor-pointer"
+              className="w-full bg-background border border-border rounded-lg py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors cursor-pointer"
             >
               <option value="all">All Types</option>
               <option value="income">Income</option>
@@ -119,7 +119,7 @@ export function Filters({ onFilterChange }: FiltersProps) {
                 setCategory(value);
                 handleChange({ category: value });
               }}
-              className="w-full bg-background border border-border rounded-lg py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all cursor-pointer"
+              className="w-full bg-background border border-border rounded-lg py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors cursor-pointer"
             >
               <option value="all">All Categories</option>
               {CATEGORIES.map((cat) => (
@@ -138,7 +138,7 @@ export function Filters({ onFilterChange }: FiltersProps) {
                 setStartDate(e.target.value);
                 handleChange({ startDate: e.target.value });
               }}
-              className="w-full bg-background border border-border rounded-lg py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all cursor-pointer"
+              className="w-full bg-background border border-border rounded-lg py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors cursor-pointer"
             />
           </div>
 
@@ -152,7 +152,7 @@ export function Filters({ onFilterChange }: FiltersProps) {
                 setEndDate(e.target.value);
                 handleChange({ endDate: e.target.value });
               }}
-              className="w-full bg-background border border-border rounded-lg py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all cursor-pointer"
+              className="w-full bg-background border border-border rounded-lg py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors cursor-pointer"
             />
           </div>
         </div>

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Plus, X, Edit2, Trash2 } from 'lucide-react';
 import type { Transaction } from '@/types';
-import { CATEGORIES } from '@/types';
+import { CATEGORY_MAP } from '@/types';
 import { formatCurrency, formatDate } from '@/utils/format';
 
 interface TransactionListProps {
@@ -19,7 +19,8 @@ export function TransactionList({ transactions, onEdit, onDelete }: TransactionL
       setDeletingId(null);
     } else {
       setDeletingId(id);
-      setTimeout(() => setDeletingId(null), 3000);
+      // Increased timeout from 3s to 5s for better accessibility
+      setTimeout(() => setDeletingId(null), 5000);
     }
   };
 
@@ -50,68 +51,72 @@ export function TransactionList({ transactions, onEdit, onDelete }: TransactionL
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {transactions.map((transaction) => (
-              <tr
-                key={transaction.id}
-                className="hover:bg-surface-hover/50 transition-colors"
-              >
-                <td className="px-4 py-3 text-sm text-white">{formatDate(transaction.date)}</td>
-                <td className="px-4 py-3 text-sm text-white">{transaction.description}</td>
-                <td className="px-4 py-3">
-                  <span
-                    className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                    style={{
-                      backgroundColor: `${CATEGORIES.find(c => c.name === transaction.category)?.color}20`,
-                      color: CATEGORIES.find(c => c.name === transaction.category)?.color,
-                    }}
-                  >
-                    {transaction.category}
-                  </span>
-                </td>
-                <td className="px-4 py-3">
-                  <span
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      transaction.type === 'income'
-                        ? 'bg-success/10 text-success'
-                        : 'bg-danger/10 text-danger'
-                    }`}
-                  >
-                    {transaction.type === 'income' ? 'Income' : 'Expense'}
-                  </span>
-                </td>
-                <td className={`px-4 py-3 text-sm font-medium text-right ${
-                  transaction.type === 'income' ? 'text-success' : 'text-danger'
-                }`}>
-                  {transaction.type === 'income' ? '+' : '-'}{formatCurrency(transaction.amount)}
-                </td>
-                <td className="px-4 py-3 text-right">
-                  <div className="flex items-center justify-end gap-2">
-                    <button
-                      onClick={() => onEdit(transaction)}
-                      className="p-1.5 rounded-lg text-muted hover:text-white hover:bg-surface-hover transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                      aria-label={`Edit ${transaction.description}`}
+            {transactions.map((transaction) => {
+              // O(1) lookup using CATEGORY_MAP instead of O(n) find
+              const categoryInfo = CATEGORY_MAP.get(transaction.category);
+              return (
+                <tr
+                  key={transaction.id}
+                  className="hover:bg-surface-hover/50 transition-colors"
+                >
+                  <td className="px-4 py-3 text-sm text-white">{formatDate(transaction.date)}</td>
+                  <td className="px-4 py-3 text-sm text-white">{transaction.description}</td>
+                  <td className="px-4 py-3">
+                    <span
+                      className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                      style={{
+                        backgroundColor: `${categoryInfo?.color}20`,
+                        color: categoryInfo?.color,
+                      }}
                     >
-                      <Edit2 className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(transaction.id)}
-                      className={`p-1.5 rounded-lg transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
-                        deletingId === transaction.id
-                          ? 'text-danger bg-danger/10'
-                          : 'text-muted hover:text-danger hover:bg-danger/10'
+                      {transaction.category}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        transaction.type === 'income'
+                          ? 'bg-success/10 text-success'
+                          : 'bg-danger/10 text-danger'
                       }`}
-                      aria-label={deletingId === transaction.id ? 'Confirm delete' : `Delete ${transaction.description}`}
                     >
-                      {deletingId === transaction.id ? (
-                        <X className="w-4 h-4" />
-                      ) : (
-                        <Trash2 className="w-4 h-4" />
-                      )}
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+                      {transaction.type === 'income' ? 'Income' : 'Expense'}
+                    </span>
+                  </td>
+                  <td className={`px-4 py-3 text-sm font-medium text-right ${
+                    transaction.type === 'income' ? 'text-success' : 'text-danger'
+                  }`}>
+                    {transaction.type === 'income' ? '+' : '-'}{formatCurrency(transaction.amount)}
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <div className="flex items-center justify-end gap-2">
+                      <button
+                        onClick={() => onEdit(transaction)}
+                        className="p-1.5 rounded-lg text-muted hover:text-white hover:bg-surface-hover transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                        aria-label={`Edit ${transaction.description}`}
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(transaction.id)}
+                        className={`p-1.5 rounded-lg transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
+                          deletingId === transaction.id
+                            ? 'text-danger bg-danger/10'
+                            : 'text-muted hover:text-danger hover:bg-danger/10'
+                        }`}
+                        aria-label={deletingId === transaction.id ? 'Confirm delete' : `Delete ${transaction.description}`}
+                      >
+                        {deletingId === transaction.id ? (
+                          <X className="w-4 h-4" />
+                        ) : (
+                          <Trash2 className="w-4 h-4" />
+                        )}
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

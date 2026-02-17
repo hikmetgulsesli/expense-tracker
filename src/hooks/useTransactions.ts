@@ -17,14 +17,14 @@ export function useTransactions() {
 
   const addTransaction = useCallback((transaction: Omit<Transaction, 'id' | 'createdAt' | 'updatedAt'>) => {
     const newTransaction = add(transaction);
-    setTransactions(getTransactions());
+    setTransactions(prev => [newTransaction, ...prev]);
     return newTransaction;
   }, []);
 
   const updateTransaction = useCallback((id: string, updates: Partial<Omit<Transaction, 'id' | 'createdAt'>>) => {
     const updated = update(id, updates);
     if (updated) {
-      setTransactions(getTransactions());
+      setTransactions(prev => prev.map(t => (t.id === id ? updated : t)));
     }
     return updated;
   }, []);
@@ -32,7 +32,7 @@ export function useTransactions() {
   const deleteTransaction = useCallback((id: string) => {
     const success = remove(id);
     if (success) {
-      setTransactions(getTransactions());
+      setTransactions(prev => prev.filter(t => t.id !== id));
     }
     return success;
   }, []);

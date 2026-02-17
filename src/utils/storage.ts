@@ -14,11 +14,13 @@ export function getTransactions(): Transaction[] {
   }
 }
 
-export function saveTransactions(transactions: Transaction[]): void {
+export function saveTransactions(transactions: Transaction[]): boolean {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(transactions));
+    return true;
   } catch (error) {
     console.error('Failed to save transactions:', error);
+    return false;
   }
 }
 
@@ -85,14 +87,21 @@ export function filterTransactions(
     filtered = filtered.filter(t => t.category === options.category);
   }
   
+  // Fix timezone issues: compare date strings directly (YYYY-MM-DD format)
   if (options.startDate) {
-    const start = new Date(options.startDate);
-    filtered = filtered.filter(t => new Date(t.date).getTime() >= start.getTime());
+    const startDate = options.startDate;
+    filtered = filtered.filter(t => {
+      const txDateStr = t.date.slice(0, 10);
+      return txDateStr >= startDate;
+    });
   }
   
   if (options.endDate) {
-    const end = new Date(options.endDate);
-    filtered = filtered.filter(t => new Date(t.date).getTime() <= end.getTime());
+    const endDate = options.endDate;
+    filtered = filtered.filter(t => {
+      const txDateStr = t.date.slice(0, 10);
+      return txDateStr <= endDate;
+    });
   }
   
   if (options.search) {

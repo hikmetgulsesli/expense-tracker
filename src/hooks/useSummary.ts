@@ -44,17 +44,72 @@ export function useCategorySummary(transactions: Transaction[], month?: string) 
       categoryMap.set(t.category, current + t.amount);
     });
     
-    const summaries: CategorySummary[] = Array.from(categoryMap.entries())
-      .map(([category, amount]) => {
-        const categoryInfo = CATEGORIES.find(c => c.name === category);
-        return {
+    // Use largest remainder method to ensure percentages sum to exactly 100%
+    const summaries: CategorySummary[] = (() => {
+      // If there are no expenses, all percentages are 0
+      if (totalExpenses === 0) {
+        return Array.from(categoryMap.entries())
+          .map(([category, amount]) => {
+            const categoryInfo = CATEGORIES.find(c => c.name === category);
+            return {
+              category,
+              amount,
+              percentage: 0,
+              color: categoryInfo?.color || '#6b7280',
+            };
+          })
+          .sort((a, b) => b.amount - a.amount);
+      }
+
+      type InterimSummary = {
+        category: Category;
+        amount: number;
+        percentage: number; // integer percentage after flooring / adjustment
+        remainder: number;  // fractional part used for distributing remaining points
+        color: string;
+      };
+
+      const interim: InterimSummary[] = Array.from(categoryMap.entries()).map(
+        ([category, amount]) => {
+          const categoryInfo = CATEGORIES.find(c => c.name === category);
+          const raw = (amount / totalExpenses) * 100;
+          const base = Math.floor(raw);
+          const remainder = raw - base;
+
+          return {
+            category,
+            amount,
+            percentage: base,
+            remainder,
+            color: categoryInfo?.color || '#6b7280',
+          };
+        }
+      );
+
+      const sumBase = interim.reduce((sum, item) => sum + item.percentage, 0);
+      let diff = 100 - sumBase;
+
+      if (diff > 0) {
+        // Distribute the remaining percentage points to categories
+        // with the largest fractional remainders
+        const sortedByRemainder = [...interim].sort(
+          (a, b) => b.remainder - a.remainder
+        );
+
+        for (let i = 0; i < diff && i < sortedByRemainder.length; i++) {
+          sortedByRemainder[i].percentage += 1;
+        }
+      }
+
+      return interim
+        .map(({ category, amount, percentage, color }) => ({
           category,
           amount,
-          percentage: totalExpenses > 0 ? Math.round((amount / totalExpenses) * 100) : 0,
-          color: categoryInfo?.color || '#6b7280',
-        };
-      })
-      .sort((a, b) => b.amount - a.amount);
+          percentage,
+          color,
+        }))
+        .sort((a, b) => b.amount - a.amount);
+    })();
     
     return summaries;
   }, [transactions, month]);

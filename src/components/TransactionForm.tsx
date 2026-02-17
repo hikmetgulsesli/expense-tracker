@@ -16,6 +16,9 @@ interface TransactionFormProps {
   onCancel: () => void;
 }
 
+// Module-level constant for max amount validation
+const MAX_AMOUNT = 1_000_000_000;
+
 export function TransactionForm({ transaction, onSubmit, onCancel }: TransactionFormProps) {
   const [amount, setAmount] = useState('');
   const [type, setType] = useState<'income' | 'expense'>('expense');
@@ -31,7 +34,16 @@ export function TransactionForm({ transaction, onSubmit, onCancel }: Transaction
       setCategory(transaction.category);
       setDescription(transaction.description);
       setDate(formatDateInput(transaction.date));
+    } else {
+      // Reset form fields when no transaction is provided (new transaction mode)
+      setAmount('');
+      setType('expense');
+      setCategory('Other');
+      setDescription('');
+      setDate(formatDateInput(new Date().toISOString()));
     }
+    // Clear any previous validation errors when switching transactions or modes
+    setErrors({});
   }, [transaction]);
 
   const validate = (): boolean => {
@@ -41,7 +53,6 @@ export function TransactionForm({ transaction, onSubmit, onCancel }: Transaction
     if (!amount || isNaN(amountNumber) || amountNumber <= 0) {
       newErrors.amount = 'Please enter a valid amount';
     } else {
-      const MAX_AMOUNT = 1000000000;
       if (amountNumber > MAX_AMOUNT) {
         newErrors.amount = `Amount must be less than or equal to ${MAX_AMOUNT}`;
       } else {
@@ -59,13 +70,13 @@ export function TransactionForm({ transaction, onSubmit, onCancel }: Transaction
     if (!date) {
       newErrors.date = 'Date is required';
     } else {
-      const parsedDate = new Date(date);
+      // Fix timezone bug: parse date in local timezone
+      const parsedDate = new Date(`${date}T00:00:00`);
       if (isNaN(parsedDate.getTime())) {
         newErrors.date = 'Please enter a valid date';
       } else {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
-        parsedDate.setHours(0, 0, 0, 0);
         if (parsedDate > today) {
           newErrors.date = 'Date cannot be in the future';
         }
@@ -120,7 +131,7 @@ export function TransactionForm({ transaction, onSubmit, onCancel }: Transaction
             <button
               type="button"
               onClick={() => setType('expense')}
-              className={`flex-1 py-2 px-4 rounded-lg font-medium transition-all ${
+              className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${
                 type === 'expense'
                   ? 'bg-danger/20 text-danger border border-danger/50'
                   : 'bg-surface-hover text-muted border border-transparent hover:border-border'
@@ -131,7 +142,7 @@ export function TransactionForm({ transaction, onSubmit, onCancel }: Transaction
             <button
               type="button"
               onClick={() => setType('income')}
-              className={`flex-1 py-2 px-4 rounded-lg font-medium transition-all ${
+              className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${
                 type === 'income'
                   ? 'bg-success/20 text-success border border-success/50'
                   : 'bg-surface-hover text-muted border border-transparent hover:border-border'
@@ -157,13 +168,17 @@ export function TransactionForm({ transaction, onSubmit, onCancel }: Transaction
               placeholder="0.00"
               step="0.01"
               min="0.01"
-              className={`w-full bg-background border rounded-lg py-2.5 pl-8 pr-4 text-white placeholder-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all ${
+              aria-invalid={!!errors.amount}
+              aria-describedby={errors.amount ? 'amount-error' : undefined}
+              className={`w-full bg-background border rounded-lg py-2.5 pl-8 pr-4 text-white placeholder-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors ${
                 errors.amount ? 'border-danger' : 'border-border'
               }`}
             />
           </div>
           {errors.amount && (
-            <p className="mt-1 text-sm text-danger">{errors.amount}</p>
+            <p id="amount-error" className="mt-1 text-sm text-danger" role="alert" aria-live="polite">
+              {errors.amount}
+            </p>
           )}
         </div>
 
@@ -176,7 +191,7 @@ export function TransactionForm({ transaction, onSubmit, onCancel }: Transaction
             id="category"
             value={category}
             onChange={(e) => setCategory(e.target.value as Category)}
-            className="w-full bg-background border border-border rounded-lg py-2.5 px-4 text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all cursor-pointer"
+            className="w-full bg-background border border-border rounded-lg py-2.5 px-4 text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors cursor-pointer"
           >
             {CATEGORIES.map((cat) => (
               <option key={cat.name} value={cat.name}>{cat.name}</option>
@@ -195,12 +210,16 @@ export function TransactionForm({ transaction, onSubmit, onCancel }: Transaction
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="What was this for?"
-            className={`w-full bg-background border rounded-lg py-2.5 px-4 text-white placeholder-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all ${
+            aria-invalid={!!errors.description}
+            aria-describedby={errors.description ? 'description-error' : undefined}
+            className={`w-full bg-background border rounded-lg py-2.5 px-4 text-white placeholder-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors ${
               errors.description ? 'border-danger' : 'border-border'
             }`}
           />
           {errors.description && (
-            <p className="mt-1 text-sm text-danger">{errors.description}</p>
+            <p id="description-error" className="mt-1 text-sm text-danger" role="alert" aria-live="polite">
+              {errors.description}
+            </p>
           )}
         </div>
 
@@ -214,12 +233,16 @@ export function TransactionForm({ transaction, onSubmit, onCancel }: Transaction
             id="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
-            className={`w-full bg-background border rounded-lg py-2.5 px-4 text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all cursor-pointer ${
+            aria-invalid={!!errors.date}
+            aria-describedby={errors.date ? 'date-error' : undefined}
+            className={`w-full bg-background border rounded-lg py-2.5 px-4 text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors cursor-pointer ${
               errors.date ? 'border-danger' : 'border-border'
             }`}
           />
           {errors.date && (
-            <p className="mt-1 text-sm text-danger">{errors.date}</p>
+            <p id="date-error" className="mt-1 text-sm text-danger" role="alert" aria-live="polite">
+              {errors.date}
+            </p>
           )}
         </div>
       </div>

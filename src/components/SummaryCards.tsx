@@ -43,7 +43,7 @@ export function SummaryCards({ summary }: SummaryCardsProps) {
       {cards.map((card) => (
         <div
           key={card.title}
-          className="bg-surface border border-border rounded-xl p-5 transition-all duration-200 hover:border-primary/30 hover:-translate-y-0.5"
+          className="bg-surface border border-border rounded-xl p-5 transition-colors duration-200 hover:border-primary/30 hover:-translate-y-0.5"
         >
           <div className="flex items-center justify-between">
             <div>
