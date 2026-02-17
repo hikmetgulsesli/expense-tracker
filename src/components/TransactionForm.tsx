@@ -37,8 +37,19 @@ export function TransactionForm({ transaction, onSubmit, onCancel }: Transaction
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
+    const amountNumber = Number(amount);
+    if (!amount || isNaN(amountNumber) || amountNumber <= 0) {
       newErrors.amount = 'Please enter a valid amount';
+    } else {
+      const MAX_AMOUNT = 1000000000;
+      if (amountNumber > MAX_AMOUNT) {
+        newErrors.amount = `Amount must be less than or equal to ${MAX_AMOUNT}`;
+      } else {
+        const parts = amount.trim().split('.');
+        if (parts.length === 2 && parts[1].length > 2) {
+          newErrors.amount = 'Amount cannot have more than 2 decimal places';
+        }
+      }
     }
 
     if (!description.trim()) {
@@ -47,6 +58,18 @@ export function TransactionForm({ transaction, onSubmit, onCancel }: Transaction
 
     if (!date) {
       newErrors.date = 'Date is required';
+    } else {
+      const parsedDate = new Date(date);
+      if (isNaN(parsedDate.getTime())) {
+        newErrors.date = 'Please enter a valid date';
+      } else {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        parsedDate.setHours(0, 0, 0, 0);
+        if (parsedDate > today) {
+          newErrors.date = 'Date cannot be in the future';
+        }
+      }
     }
 
     setErrors(newErrors);
@@ -67,7 +90,6 @@ export function TransactionForm({ transaction, onSubmit, onCancel }: Transaction
     });
 
     if (!transaction) {
-      // Reset form for new transaction
       setAmount('');
       setDescription('');
       setDate(formatDateInput(new Date().toISOString()));
@@ -92,8 +114,8 @@ export function TransactionForm({ transaction, onSubmit, onCancel }: Transaction
 
       <div className="space-y-4">
         {/* Type Selection */}
-        <div>
-          <label className="block text-sm font-medium text-muted mb-2">Type</label>
+        <fieldset>
+          <legend className="block text-sm font-medium text-muted mb-2">Type</legend>
           <div className="flex gap-2">
             <button
               type="button"
@@ -118,7 +140,7 @@ export function TransactionForm({ transaction, onSubmit, onCancel }: Transaction
               Income
             </button>
           </div>
-        </div>
+        </fieldset>
 
         {/* Amount */}
         <div>

@@ -1,4 +1,3 @@
-import React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import type { CategorySummary } from '@/types';
 
@@ -43,17 +42,18 @@ export function CategoryChart({ data }: CategoryChartProps) {
                 borderRadius: '8px',
                 color: '#fff',
               }}
-              formatter={(value: number, name: string, props: { payload: CategorySummary }) => [
-                `$${value.toFixed(2)} (${props.payload.percentage}%)`,
-                props.payload.category,
-              ]}
+              formatter={(value: number, _name: string, props) => {
+                const payload = props?.payload as CategorySummary | undefined;
+                return [`$${value.toFixed(2)} (${payload?.percentage || 0}%)`, payload?.category || ''];
+              }}
             />
             <Legend
               verticalAlign="bottom"
               height={36}
-              formatter={(value: string, entry: { payload: CategorySummary }) =>
-                `${entry.payload.category} (${entry.payload.percentage}%)`
-              }
+              formatter={(_value, entry) => {
+                const payload = entry?.payload as CategorySummary | undefined;
+                return `${payload?.category || ''} (${payload?.percentage || 0}%)`;
+              }}
             />
           </PieChart>
         </ResponsiveContainer>

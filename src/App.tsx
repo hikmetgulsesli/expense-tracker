@@ -28,14 +28,14 @@ function App() {
   const trendData = useTrendData(transactions);
 
   const filteredTransactions = useMemo(() => {
-    return filterTransactions({
+    return filterTransactions(transactions, {
       search: filters.search,
       type: filters.type === 'all' ? undefined : filters.type,
       category: filters.category === 'all' ? undefined : filters.category,
       startDate: filters.startDate,
       endDate: filters.endDate,
     });
-  }, [filters]);
+  }, [transactions, filters]);
 
   const handleEdit = (transaction: Transaction) => {
     setEditingTransaction(transaction);

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { Transaction, MonthlySummary, CategorySummary, Category } from '@/types';
+import type { Transaction, CategorySummary, Category } from '@/types';
 import { CATEGORIES } from '@/types';
 
 export function useMonthlySummary(transactions: Transaction[], month?: string) {
@@ -22,6 +22,7 @@ export function useMonthlySummary(transactions: Transaction[], month?: string) {
       income,
       expenses,
       balance: income - expenses,
+      transactionCount: monthTransactions.length,
     };
   }, [transactions, month]);
 }

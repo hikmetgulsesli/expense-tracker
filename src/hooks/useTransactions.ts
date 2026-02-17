@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { Transaction } from '@/types';
-import { getTransactions, saveTransactions, addTransaction as add, updateTransaction as update, deleteTransaction as remove } from '@/utils/storage';
+import { getTransactions, addTransaction as add, updateTransaction as update, deleteTransaction as remove } from '@/utils/storage';
 
 export function useTransactions() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);

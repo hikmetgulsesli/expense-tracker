@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Search, Filter, X } from 'lucide-react';
 import type { Category } from '@/types';
 import { CATEGORIES } from '@/types';
@@ -71,6 +71,7 @@ export function Filters({ onFilterChange }: FiltersProps) {
         {/* Filter Toggle */}
         <button
           onClick={() => setIsExpanded(!isExpanded)}
+          aria-expanded={isExpanded}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
             isExpanded || hasActiveFilters
               ? 'bg-primary/20 text-primary border border-primary/50'

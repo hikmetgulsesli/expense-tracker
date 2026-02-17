@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Plus, X, Edit2, Trash2 } from 'lucide-react';
-import type { Transaction, Category } from '@/types';
+import type { Transaction } from '@/types';
 import { CATEGORIES } from '@/types';
 import { formatCurrency, formatDate } from '@/utils/format';
 

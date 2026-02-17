@@ -21,17 +21,16 @@ export type Category =
 export interface CategoryInfo {
   name: Category;
   color: string;
-  icon: string;
 }
 
 export const CATEGORIES: CategoryInfo[] = [
-  { name: 'Food', color: '#f97316', icon: 'UtensilsCrossed' },
-  { name: 'Transport', color: '#3b82f6', icon: 'Car' },
-  { name: 'Bills', color: '#ef4444', icon: 'Receipt' },
-  { name: 'Entertainment', color: '#a855f7', icon: 'Film' },
-  { name: 'Shopping', color: '#ec4899', icon: 'ShoppingBag' },
-  { name: 'Health', color: '#22c55e', icon: 'Heart' },
-  { name: 'Other', color: '#6b7280', icon: 'MoreHorizontal' },
+  { name: 'Food', color: '#f97316' },
+  { name: 'Transport', color: '#3b82f6' },
+  { name: 'Bills', color: '#ef4444' },
+  { name: 'Entertainment', color: '#a855f7' },
+  { name: 'Shopping', color: '#ec4899' },
+  { name: 'Health', color: '#22c55e' },
+  { name: 'Other', color: '#6b7280' },
 ];
 
 export interface MonthlySummary {
@@ -40,6 +39,7 @@ export interface MonthlySummary {
   income: number;
   expenses: number;
   balance: number;
+  transactionCount: number;
 }
 
 export interface CategorySummary {

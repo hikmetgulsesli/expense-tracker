@@ -1,4 +1,3 @@
-import React from 'react';
 import { Wallet, TrendingUp, TrendingDown, DollarSign } from 'lucide-react';
 import type { MonthlySummary } from '@/types';
 import { formatCurrency } from '@/utils/format';
@@ -32,8 +31,7 @@ export function SummaryCards({ summary }: SummaryCardsProps) {
     },
     {
       title: 'Total Transactions',
-      amount: null,
-      displayValue: '—',
+      displayValue: String(summary.transactionCount),
       icon: DollarSign,
       color: 'text-primary',
       bgColor: 'bg-primary/10',

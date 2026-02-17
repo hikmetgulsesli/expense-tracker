@@ -8,7 +8,8 @@ export function getTransactions(): Transaction[] {
     if (!data) return [];
     const parsed = JSON.parse(data);
     return Array.isArray(parsed) ? parsed : [];
-  } catch {
+  } catch (error) {
+    console.error('Failed to load transactions from localStorage:', error);
     return [];
   }
 }
@@ -63,47 +64,52 @@ export function deleteTransaction(id: string): boolean {
   return true;
 }
 
-export function getTransactionById(id: string): Transaction | undefined {
-  return getTransactions().find(t => t.id === id);
-}
-
-export function filterTransactions(options: {
-  type?: 'income' | 'expense';
-  category?: Category;
-  startDate?: string;
-  endDate?: string;
-  search?: string;
-}): Transaction[] {
-  let transactions = getTransactions();
+// Refactored to be a pure function that accepts transactions as a parameter
+export function filterTransactions(
+  transactions: Transaction[],
+  options: {
+    type?: 'income' | 'expense';
+    category?: Category;
+    startDate?: string;
+    endDate?: string;
+    search?: string;
+  }
+): Transaction[] {
+  let filtered = [...transactions];
   
   if (options.type) {
-    transactions = transactions.filter(t => t.type === options.type);
+    filtered = filtered.filter(t => t.type === options.type);
   }
   
   if (options.category) {
-    transactions = transactions.filter(t => t.category === options.category);
+    filtered = filtered.filter(t => t.category === options.category);
   }
   
   if (options.startDate) {
-    transactions = transactions.filter(t => t.date >= options.startDate);
+    const start = new Date(options.startDate);
+    filtered = filtered.filter(t => new Date(t.date).getTime() >= start.getTime());
   }
   
   if (options.endDate) {
-    transactions = transactions.filter(t => t.date <= options.endDate);
+    const end = new Date(options.endDate);
+    filtered = filtered.filter(t => new Date(t.date).getTime() <= end.getTime());
   }
   
   if (options.search) {
     const searchLower = options.search.toLowerCase();
-    transactions = transactions.filter(t => 
+    filtered = filtered.filter(t => 
       t.description.toLowerCase().includes(searchLower) ||
       t.category.toLowerCase().includes(searchLower)
     );
   }
   
   // Sort by date descending
-  return transactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  return filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 }
 
 function generateId(): string {
-  return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  return `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
 }
